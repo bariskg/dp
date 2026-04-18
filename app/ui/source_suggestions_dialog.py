@@ -42,11 +42,16 @@ class SourceSuggestionsDialog(QDialog):
         text.setReadOnly(True)
         text.setPlainText(self._build_text(suggestions))
 
-        buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
+        buttons = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Ok
+            | QDialogButtonBox.StandardButton.Cancel
+        )
+        ok_button = buttons.button(QDialogButtonBox.StandardButton.Ok)
+        ok_button.setText("Taslak Olustur")
+        cancel_button = buttons.button(QDialogButtonBox.StandardButton.Cancel)
+        cancel_button.setText("Vazgec")
+        buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
-        close_button = buttons.button(QDialogButtonBox.StandardButton.Close)
-        close_button.setText("Kapat")
-        close_button.clicked.connect(self.accept)
 
         layout = QVBoxLayout(self)
         layout.addWidget(title)

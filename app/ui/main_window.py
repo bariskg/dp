@@ -19,7 +19,9 @@ from app.services.db import (
     list_files,
     save_intake_form,
 )
+from app.services.draft import build_petition_draft
 from app.services.sources import suggest_sources
+from app.ui.draft_dialog import DraftDialog
 from app.ui.file_intake_dialog import FileIntakeDialog
 from app.ui.intake_summary_dialog import IntakeSummaryDialog
 from app.ui.new_file_dialog import NewFileDialog
@@ -165,7 +167,21 @@ class MainWindow(QMainWindow):
                     suggestions=suggestions,
                     parent=self,
                 )
-                suggestions_dialog.exec()
+                if suggestions_dialog.exec():
+                    draft_text = build_petition_draft(
+                        file_record=file_record,
+                        intake_data=payload,
+                        suggestions=suggestions,
+                    )
+                    draft_dialog = DraftDialog(
+                        file_record=file_record,
+                        draft_text=draft_text,
+                        parent=self,
+                    )
+                    draft_dialog.exec()
+                    self.status_label.setText(
+                        f"Ilk taslak olusturuldu: {file_record['name']}"
+                    )
             else:
                 self.status_label.setText(
                     f"Dosya guncellendi: {file_record['name']}"
