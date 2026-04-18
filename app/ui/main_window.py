@@ -20,6 +20,7 @@ from app.services.db import (
     save_intake_form,
 )
 from app.ui.file_intake_dialog import FileIntakeDialog
+from app.ui.intake_summary_dialog import IntakeSummaryDialog
 from app.ui.new_file_dialog import NewFileDialog
 
 
@@ -143,8 +144,24 @@ class MainWindow(QMainWindow):
         intake_data = get_intake_form(file_id)
         dialog = FileIntakeDialog(file_record=file_record, intake_data=intake_data, parent=self)
         if dialog.exec():
-            save_intake_form(file_id, dialog.get_payload())
+            payload = dialog.get_payload()
+            save_intake_form(file_id, payload)
             self.refresh_file_list()
-            self.status_label.setText(
-                f"Dosya guncellendi: {file_record['name']}"
+            summary_dialog = IntakeSummaryDialog(
+                file_record=file_record,
+                intake_data=payload,
+                parent=self,
             )
+            if summary_dialog.exec():
+                self.status_label.setText(
+                    f"Ozet onaylandi: {file_record['name']}"
+                )
+                QMessageBox.information(
+                    self,
+                    "Siradaki Adim",
+                    "Bir sonraki adimda bu ozet ekranindan kaynak onerileri acilacak.",
+                )
+            else:
+                self.status_label.setText(
+                    f"Dosya guncellendi: {file_record['name']}"
+                )
