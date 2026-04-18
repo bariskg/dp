@@ -19,9 +19,11 @@ from app.services.db import (
     list_files,
     save_intake_form,
 )
+from app.services.sources import suggest_sources
 from app.ui.file_intake_dialog import FileIntakeDialog
 from app.ui.intake_summary_dialog import IntakeSummaryDialog
 from app.ui.new_file_dialog import NewFileDialog
+from app.ui.source_suggestions_dialog import SourceSuggestionsDialog
 
 
 class MainWindow(QMainWindow):
@@ -153,14 +155,17 @@ class MainWindow(QMainWindow):
                 parent=self,
             )
             if summary_dialog.exec():
+                suggestions = suggest_sources(file_record, payload)
                 self.status_label.setText(
                     f"Ozet onaylandi: {file_record['name']}"
                 )
-                QMessageBox.information(
-                    self,
-                    "Siradaki Adim",
-                    "Bir sonraki adimda bu ozet ekranindan kaynak onerileri acilacak.",
+                suggestions_dialog = SourceSuggestionsDialog(
+                    file_record=file_record,
+                    intake_data=payload,
+                    suggestions=suggestions,
+                    parent=self,
                 )
+                suggestions_dialog.exec()
             else:
                 self.status_label.setText(
                     f"Dosya guncellendi: {file_record['name']}"
