@@ -12,7 +12,14 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from app.services.db import create_file, list_files
+from app.services.db import (
+    create_file,
+    get_file,
+    get_intake_form,
+    list_files,
+    save_intake_form,
+)
+from app.ui.file_intake_dialog import FileIntakeDialog
 from app.ui.new_file_dialog import NewFileDialog
 
 
@@ -91,7 +98,7 @@ class MainWindow(QMainWindow):
         dialog = NewFileDialog(self)
         if dialog.exec():
             payload = dialog.get_payload()
-            create_file(
+            file_id = create_file(
                 name=payload["name"],
                 case_type=payload["case_type"],
                 notes=payload["notes"],
@@ -100,6 +107,7 @@ class MainWindow(QMainWindow):
             self.status_label.setText(
                 f"Yeni dosya olusturuldu: {payload['name']}"
             )
+            self.open_file_by_id(file_id)
 
     def show_open_file_message(self) -> None:
         """Explain that the detail screen is the next implementation step."""
@@ -114,15 +122,29 @@ class MainWindow(QMainWindow):
         self.open_selected_file(current_item)
 
     def open_selected_file(self, item: QListWidgetItem) -> None:
-        """Show the selected file details until the next screen is built."""
+        """Open the first-pass intake form for the selected file."""
         file_record = item.data(Qt.ItemDataRole.UserRole)
         if not file_record:
             return
+        self.open_file_by_id(int(file_record["id"]))
 
-        message = (
-            f"Secilen dosya: {file_record['name']}\n"
-            f"Dava tipi: {file_record['case_type']}\n"
-            f"Durum: {file_record['status']}\n\n"
-            "Bir sonraki adimda bu secim bilgi giris ekranini acacak."
-        )
-        QMessageBox.information(self, "Dosya Ac", message)
+    def open_file_by_id(self, file_id: int) -> None:
+        """Load the selected file and open its intake form dialog."""
+        file_record = get_file(file_id)
+        if not file_record:
+            QMessageBox.warning(
+                self,
+                "Dosya Bulunamadi",
+                "Secilen dosya bulunamadi. Liste yenilenip tekrar deneyin.",
+            )
+            self.refresh_file_list()
+            return
+
+        intake_data = get_intake_form(file_id)
+        dialog = FileIntakeDialog(file_record=file_record, intake_data=intake_data, parent=self)
+        if dialog.exec():
+            save_intake_form(file_id, dialog.get_payload())
+            self.refresh_file_list()
+            self.status_label.setText(
+                f"Dosya guncellendi: {file_record['name']}"
+            )
