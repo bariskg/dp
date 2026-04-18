@@ -39,7 +39,7 @@ Onerilen baslangic alanlari:
 
 Ilk karar:
 
-- Bu listedeki alanlardan birini secmek
+- Baslangic alani olarak aile hukuku ve bosanma secildi
 
 ## 4. Veri kaynaklari
 
@@ -220,8 +220,9 @@ Ornek takip duzeni:
 
 ## 12. Siradaki adim
 
-Bu repo icin ilk net karar:
+Bu repo icin secilen ilk alan:
 
-- Hangi dava turu ile baslayacagiz?
+- aile hukuku
+- bosanma davalari
 
-Bu soru cevaplandiktan sonra bir sonraki belge olarak `docs/mvp.md` hazirlanacak.
+Bir sonraki belge olarak `docs/mvp.md` hazirlanmistir ve ilk urun sinirlari bu belge uzerinden netlestirilecektir.
